@@ -1,7 +1,7 @@
-class Loader {
+export class Loader {                                                           //module of loading functions
 
-  loadImagesList(folder, list) {
-    return new Promise( (resolve, reject) => {
+  loadImagesList( folder, list ) {                                              //used for loading sprites
+    return new Promise( (resolve, reject) => {                                  //resolved promise returns object with images, where key is img filename without the extension
       let n = 0;
       let images = {};
 
@@ -20,32 +20,30 @@ class Loader {
     });
   }
 
-  loadAudioList(folder, list) {
-    return new Promise( (resolve, reject) => {
-      let tracksBuffer = {};
+  loadAudioList( folder, list ) {
+    return new Promise( (resolve, reject) => {                                  //same principle as for images
+      let tracks = {};
       let n = 0;
 
       list.forEach( src => {
         const key = src.split('.')[0];
-        const xhr = new XMLHttpRequest();
-        xhr.responseType = 'arraybuffer';
+        let track = new Audio();
 
-        xhr.onload = () => {
-          tracksBuffer[ key ] = xhr.response;
+        track.oncanplaythrough = () => {
+          tracks[ key ] = track;
           n++;
           if ( n === list.length)
-            resolve(tracksBuffer);
+            resolve(tracks);
         };
 
-        xhr.open('GET', `${ folder }/${ src }`, true);
-        xhr.send();
+        track.src = `${folder}/${src}`;
 
       });
     });
   }
 
-  loadImg(folder, src) {
-    return new Promise( (resolve, reject) => {
+  loadImg( folder, src ) {                                                        //at the beginning of the game we don't need to load images for all word at once
+    return new Promise( (resolve, reject) => {                                  //this function loads the selected image by generation of new panda
       const img = new Image();
 
       img.onload = () => resolve( img );
@@ -53,8 +51,8 @@ class Loader {
     });
   }
 
-  loadFolder(folder) {
-    return new Promise( (resolve, reject) => {
+  loadFolder( folder ) {                                                          //returns just list of files in folder
+    return new Promise( (resolve, reject) => {                                  //so we can easily add images to a folder without the need to edit the code.
       const xhr = new XMLHttpRequest();
 
       xhr.open('GET', `php/get-folder.php?folder=${ folder }`);

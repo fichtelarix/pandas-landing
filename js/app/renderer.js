@@ -1,25 +1,58 @@
-class Renderer {
+export class Renderer {                                                         //render module
 
   constructor( settings ) {
     this.settings = settings;
     this.sprites = [];
+    this.layers = {};
   }
 
+  resizeCanvas() {                                                              //Scaling the canvas depending on the screen size.
+                                                                                //is executed at the beginning and window resize.
+    const contElem = this.stage.container();
+    contElem.style.height = window.innerHeight + 'px';
 
-  init() {
-    const contElem = document.getElementById( this.settings.render.canvas.container );
-    const scale = contElem.clientWidth / this.settings.render.canvas.width;
-    const realWidth = contElem.clientWidth;
-    const realHeight = this.settings.render.canvas.height * scale;
+    const scale = contElem.clientHeight / this.settings.render.canvas.height;
+    const realWidth = this.settings.render.canvas.width * scale;
+    const realHeight =  contElem.clientHeight;
 
+    this.stage.width( realWidth )
+      .height( realHeight )
+      .scale({x: scale, y: scale});
+    this.stage.draw();
+  }
+
+  loading() {                                                                   //functions for 3-step loading
+
+    this.container = document.getElementById( this.settings.render.canvas.container );
     this.stage = new Konva.Stage({
-      container: contElem,
-      width: realWidth,
-      height: realHeight,
-      scale: { x: scale, y: scale }
+      container: this.container
     });
 
-    this.layers = {};
+    this.resizeCanvas();
+    window.addEventListener('resize', () => { this.resizeCanvas() });
+
+    this.layers.loading =  new Konva.Layer();
+    this.stage.add( this.layers.loading );
+    this.loadingDraw();
+  }
+
+  loading2() {
+    this.settings.render.loadImgs[1] = this.loadImage;
+    this.layers.loading.add(
+      new Konva.Image( this.settings.render.loadImgs[1] )
+    ).draw();
+  }
+
+  loading3() {
+    this.settings.render.loadImgs[2] = this.loadImage;
+    this.layers.loading.add(
+      new Konva.Image( this.settings.render.loadImgs[2] )
+    ).draw();
+  }
+
+  init() {
+
+    this.layers.loading.hide();
 
     [ 'background', 'sprites', 'panel', 'pause', 'end', 'start' ].forEach( (layer) => {
       this.layers[layer] = new Konva.Layer();
@@ -27,7 +60,32 @@ class Renderer {
       this[ `${layer}Draw` ]();
     });
 
-    this.stage.find('.start').on('click', () => this.onStart() );
+    this.stage.find('.start').on('click touchend', () => this.onStart() );
+  }
+
+  loadingDraw() {
+    this.layers.loading.add(
+      new Konva.Rect({
+        fill: '#89f87f',
+        width: this.settings.render.canvas.width,
+        height: this.settings.render.canvas.height,
+      })
+    ).add(
+      new Konva.Text( this.settings.render.loading )
+    )
+      .draw();
+
+    this.loadImage = new Image();
+
+    this.loadImage.onload = () => {
+
+      this.settings.render.loadImgs[0] = this.loadImage;
+      this.layers.loading.add(
+        new Konva.Image( this.settings.render.loadImgs[0] )
+      ).draw();
+    };
+
+    this.loadImage.src = 'sprites/loading.png';
   }
 
   backgroundDraw() {
@@ -37,6 +95,13 @@ class Renderer {
     });
 
     this.layers.background.add(
+      new Konva.Image({
+        image: this.sprites.background,
+        x: 0, y: 0,
+        width: this.settings.render.canvas.width,
+        height: this.settings.render.canvas.height
+      })
+    ).add(
       new Konva.Image( this.settings.render.pikes )
     ).draw();
   }
@@ -62,8 +127,12 @@ class Renderer {
     });
     this.inputText = new Konva.Text( this.settings.render.input );
 
+    this.inputTextClone = this.inputText.clone();
+    this.inputTextClone.opacity(0);
+
     this.layers.panel
       .add( this.inputText )
+      .add( this.inputTextClone )
       .add( this.panel );
   }
 
@@ -71,12 +140,12 @@ class Renderer {
     this.settings.render.startButton.image = this.sprites.start;
 
     this.layers.start
-      .add( new Konva.Rect({
+      .add( new Konva.Image({
         x: 0,
         y: 0,
         width: this.settings.render.canvas.width,
         height: this.settings.render.canvas.height,
-        fill: 'white'
+        image: this.sprites['bg-start'],
       }))
       .add( new Konva.Image( this.settings.render.startButton ))
       .draw();
@@ -92,14 +161,22 @@ class Renderer {
 
   endDraw() {
     this.settings.render.winText.width = this.settings.render.canvas.width;
+    this.settings.render.againButton.image = this.sprites.again;
+    this.settings.render.loseImg1.image = this.sprites['end-lose-1'];
+    this.settings.render.loseImg2.image = this.sprites['end-lose-2'];
+    this.settings.render.winImg.image = this.sprites['end-win'];
+
     this.finalScore = new Konva.Text( this.settings.render.finalScore );
 
     this.layers.end
-      .add( new Konva.Rect({
+      .add( new Konva.Image({
         width: this.settings.render.canvas.width,
         height: this.settings.render.canvas.height,
-        fill: 'white'
+        image: this.sprites['bg-end']
       }))
+      .add( new Konva.Image( this.settings.render.loseImg1 ))
+      .add( new Konva.Image( this.settings.render.loseImg2 ))
+      .add( new Konva.Image( this.settings.render.winImg ))
       .add( new Konva.Text( this.settings.render.winText ))
       .add( new Konva.Text( this.settings.render.finalScoreText ))
       .add( this.finalScore )
@@ -152,9 +229,7 @@ class Renderer {
 
     Object.assign( this.settings.render.panda, {
       image: this.sprites.panda,
-      x: - this.settings.render.panda.width / 2,
-      animation: panda.state,
-      frameRate: 1000 / this.settings.timeRate
+      animation: panda.state
     });
     panda.sprite = new Konva.Sprite( this.settings.render.panda );
     panda.sprite.start();
@@ -163,13 +238,14 @@ class Renderer {
     panda.img = new Konva.Image( this.settings.render.wordImg );
 
     panda.group = new Konva.Group({
-      scaleX: panda.rotate,
       x: panda.x,
-      y: panda.y
+      y: panda.y,
+      scaleX: panda.rotate
     }).add( panda.sprite )
       .add( panda.img );
 
     this.layers.sprites.add( panda.group );
+
   }
 
   renderPanda( panda ) {
@@ -179,12 +255,19 @@ class Renderer {
       .y( panda.y );
 
 
-    panda.sprite.setAnimation( panda.state );
+    panda.sprite
+      .setAnimation( panda.state );
 
     if ( panda.state === 'dead' || panda.state === 'win' )
       panda.img.hide();
 
     panda.group.scaleX( panda.rotate );
+
+      panda.img
+        .scaleX( panda.rotate )
+        .x( panda.img.scaleX() == '1'
+          ? this.settings.render.wordImg.x
+          : this.settings.render.wordImg.x  + this.settings.render.wordImg.width ) ;
   }
 
   deletePanda( panda ) {
@@ -193,6 +276,35 @@ class Renderer {
 
   getScoreString( score ) {
     return this.settings.render.score.text.slice( 0, - score.toString().length ) + score;
+  }
+
+  playInputTween( word ) {
+    this.inputTextClone.text( word );
+    this.inputTextClone.opacity(1);
+    this.inputTextClone.fill( this.inputText.fill() );
+
+    let tween = new Konva.Tween({
+      node: this.inputTextClone,
+      duration: .5,
+      fill: 'red',
+      scaleX: 1.5,
+      x: this.inputText.x() - this.inputText.width() * .25,
+      scaleY: 1.5,
+      y: this.inputText.y() - this.inputText.height() * .25,
+      opacity: 0,
+    });
+
+    tween.play();
+  }
+
+  playDeadTween( panda ) {
+    let tween = new Konva.Tween({
+      node: panda.sprite,
+      duration: .5,
+      y: 100
+    });
+
+    tween.play();
   }
 
 
