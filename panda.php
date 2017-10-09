@@ -8,21 +8,28 @@
 </head>
 <body>
 
-<div id="warning">
-
-	<div id="excl-point"><div>!</div></div>
-	This page presents a desktop version of the game, which can work unstable on mobile devices. Mobile version is still in development ...
-	<button id="close-button" onclick="document.getElementById('warning').style.display = 'none'">Close</button>
-</div>
 
 <div id="outer-container">
-	<div id="game-container"></div>
+
+	<div id="container">
+		<div id="warning">
+
+			<div id="excl-point"><div>!</div></div>
+			This page presents a desktop version of the game, which can work unstable on mobile devices. Mobile version is still in development ...
+			<button id="close-button" onclick="document.getElementById('warning').style.display = 'none'">Close</button>
+		</div>
+
+		<input id="game-input">
+
+		<div id="game-container"></div>
+	</div>
+
 </div>
 
 <audio id="bg-audio"></audio>
 <audio id="effects-audio"></audio>
 
-<input id="game-input">
+
 
 
 <script src="https://cdn.polyfill.io/v2/polyfill.min.js"></script>
