@@ -148,13 +148,13 @@ var Renderer = exports.Renderer = function () {
   }, {
     key: 'loading2',
     value: function loading2() {
-      this.settings.render.loadImgs[1] = this.loadImage;
+      this.settings.render.loadImgs[1].image = this.loadImage;
       this.layers.loading.add(new Konva.Image(this.settings.render.loadImgs[1])).draw();
     }
   }, {
     key: 'loading3',
     value: function loading3() {
-      this.settings.render.loadImgs[2] = this.loadImage;
+      this.settings.render.loadImgs[2].image = this.loadImage;
       this.layers.loading.add(new Konva.Image(this.settings.render.loadImgs[2])).draw();
     }
   }, {
@@ -189,7 +189,7 @@ var Renderer = exports.Renderer = function () {
 
       this.loadImage.onload = function () {
 
-        _this3.settings.render.loadImgs[0] = _this3.loadImage;
+        _this3.settings.render.loadImgs[0].image = _this3.loadImage;
         _this3.layers.loading.add(new Konva.Image(_this3.settings.render.loadImgs[0])).draw();
       };
 

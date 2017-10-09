@@ -37,14 +37,14 @@ export class Renderer {                                                         
   }
 
   loading2() {
-    this.settings.render.loadImgs[1] = this.loadImage;
+    this.settings.render.loadImgs[1].image = this.loadImage;
     this.layers.loading.add(
       new Konva.Image( this.settings.render.loadImgs[1] )
     ).draw();
   }
 
   loading3() {
-    this.settings.render.loadImgs[2] = this.loadImage;
+    this.settings.render.loadImgs[2].image = this.loadImage;
     this.layers.loading.add(
       new Konva.Image( this.settings.render.loadImgs[2] )
     ).draw();
@@ -79,7 +79,7 @@ export class Renderer {                                                         
 
     this.loadImage.onload = () => {
 
-      this.settings.render.loadImgs[0] = this.loadImage;
+      this.settings.render.loadImgs[0].image = this.loadImage;
       this.layers.loading.add(
         new Konva.Image( this.settings.render.loadImgs[0] )
       ).draw();
