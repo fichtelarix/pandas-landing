@@ -17,22 +17,24 @@ body, html {
     width: 100%;
 }
 
-#warning { display: none }
+#warning {
+    display: block;
+    margin: 5px 5%;
+    width: 90%;
+    padding: 15px;
+    color: grey;
+    font-family: "Verdana";
+    font-size: 20px;
+    text-align: justify;
+    text-align-all: center;
+    border: grey 2px dashed;
+    border-radius: 4px;
+}
 
-@media only screen and (max-device-width: 800px) {
-    #warning {
-        display: block;
-        margin: 5px 5%;
-        width: 90%;
-        padding: 15px;
-        color: grey;
-        font-family: "Verdana";
-        font-size: 20px;
-        text-align: justify;
-        text-align-all: center;
-        border: grey 2px dashed;
-        border-radius: 4px;
-    }
+
+
+@media (min-width: 800px) {
+    #warning { display: none }
 }
 #excl-point {
     position: relative;
