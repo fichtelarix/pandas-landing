@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Panda rescue!</title>
 	<link rel="stylesheet" href="css/panda-styles.css">
-	
+
 </head>
 <body>
 
